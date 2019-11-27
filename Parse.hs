@@ -9,14 +9,14 @@ instance Show Data where
     show (Str s) = s
 
 data Expr = 
-    Variable String   |
-    Literal Data      |
-    Is Expr Expr      |
-    While Expr [Expr] |
-    EndWhile          |
-    Plus Expr Expr    |
-    Great Expr Expr   |
-    Print Expr        |
+    Variable String     |
+    Literal Data        |
+    Is Expr Expr        |
+    While Expr [Expr]   |
+    EndWhile [[String]] |
+    Plus Expr Expr      |
+    Great Expr Expr     |
+    Print Expr          |
     Nop
     deriving Show
 
@@ -45,24 +45,29 @@ parseFile file = parse tokenize
 
 
         parse :: [[String]] -> [Expr]
-        
+
         parse (("OwO":exp1):rest) =
             (While (parseStmt Nop exp1) body) : (parse after)
             where
-                body = map (parseStmt Nop) $ takeWhile (\t -> t /= ["stawp"]) rest
-                after = drop (length body+1) rest
+                body = parse rest
+                after = getRest $ last $ body
+                getRest (EndWhile rst) = rst
         
+        parse (("stawp":[]):rest) = [EndWhile rest]
+
         parse (s:ss) = (parseStmt Nop s) : (parse ss)
         parse [] = []
 
         lexer :: String -> (String,Maybe Integer)
-        lexer ('\"':xs) = ("Quote",Nothing)
-        lexer "*"       = ("",Nothing)
-        lexer "iws"     = ("Is",Nothing)
-        lexer "pwus"    = ("Plus",Nothing)
-        lexer "nuzzels" = ("Print",Nothing)
-        lexer "gweatew" = ("Great",Nothing)
-        lexer tkn       = 
+        lexer ('\"':xs) 
+           | last xs == '\"' = ("String",Nothing)
+           | otherwise       = ("Quote",Nothing) 
+        lexer "*"            = ("",Nothing)
+        lexer "iws"          = ("Is",Nothing)
+        lexer "pwus"         = ("Plus",Nothing)
+        lexer "nuzzels"      = ("Print",Nothing)
+        lexer "gweatew"      = ("Great",Nothing)
+        lexer tkn = 
             case (readMaybe tkn :: Maybe Integer) of
                  Just n  -> ("Literal",Just n)
                  Nothing -> ("Variable",Nothing)
@@ -78,6 +83,7 @@ parseFile file = parse tokenize
         parseStmt before []              = before
         parseStmt _ (('U':'w':'U':s):ss) = Nop
         parseStmt before (tkn:tkns) = case lexer tkn of
+            ("String", Nothing)  ->  Literal (Str (tail $ init tkn))
             ("Quote", Nothing)   ->  Literal (Str $ (tail tkn) ++ " " ++ takeRestOfStr tkns)  
             ("Variable",Nothing) ->  parseStmt (Variable tkn) tkns
             ("Literal",Just n)   ->  parseStmt (Literal (I32 n)) tkns

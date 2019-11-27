@@ -34,6 +34,7 @@ runExprs (e:es) state = runExprs es state'
     state' = eval e state
 
     eval :: Expr -> State -> State
+    
     eval (Literal n) st     = returns st n
     
     eval (Variable v) (State varT _ printB) =
@@ -77,8 +78,12 @@ runExprs (e:es) state = runExprs es state'
                           eval (While expr loop) st'
         while' False = st
 
-    eval (Print expr) st = 
-        writeToBuffer st $ show $ returnVal (eval expr st)
+    eval (Print expr) st = writeToBuffer st (print' val)
+       where
+        val = returnVal (eval expr st)
+        print' :: Data -> String
+        print' (I32 n) = show n
+        print' (Str s) = s
 
     eval _ st = st
 
