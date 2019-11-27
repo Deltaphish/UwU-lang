@@ -18,9 +18,9 @@ isReserved :: String -> Bool
 isReserved s
     | s == "iws"      = True
     | s == "pwus"     = True
-    | s == "stowp"    = True
+    | s == "stawp"    = True
     | s == "*"        = True
-    | s == "*Notices" = True
+    | s == "*notices" = True
     | s == "nuzzels"  = True
     | otherwise       = False
 
@@ -43,7 +43,7 @@ parseFile file = parse tokenize
         parse (("OwO":exp1):rest) =
             (While (parseStmt Nop exp1) body) : (parse after)
             where
-                body = map (parseStmt Nop) $ takeWhile (\t -> t /= ["stowp"]) rest
+                body = map (parseStmt Nop) $ takeWhile (\t -> t /= ["stawp"]) rest
                 after = drop (length body+1) rest
         
         parse (s:ss) = (parseStmt Nop s) : (parse ss)
