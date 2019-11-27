@@ -37,7 +37,12 @@ runExprs (e:es) state = runExprs es state'
     eval (Literal n) st     = returns st n
     
     eval (Variable v) (State varT _ printB) =
-        State varT (fromJust (lookup v varT)) printB
+        State varT (fromJust' (lookup v varT)) printB
+           where
+              fromJust' :: Maybe a -> a
+              fromJust' (Just a) = a
+              fromJust' Nothing  = error $ "Error: No variable " ++ v
+
     
     eval (Is (Variable name) expr) st = 
         updateVar st (name,(returnVal $ eval expr st))

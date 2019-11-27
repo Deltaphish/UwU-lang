@@ -77,7 +77,7 @@ parseFile file = parse tokenize
         parseStmt :: Expr -> [String] -> Expr
         parseStmt before []              = before
         parseStmt _ (('U':'w':'U':s):ss) = Nop
-        parseStmt before (tkn:tkns) = case (lexer tkn) of
+        parseStmt before (tkn:tkns) = case lexer tkn of
             ("Quote", Nothing)   ->  Literal (Str $ (tail tkn) ++ " " ++ takeRestOfStr tkns)  
             ("Variable",Nothing) ->  parseStmt (Variable tkn) tkns
             ("Literal",Just n)   ->  parseStmt (Literal (I32 n)) tkns
