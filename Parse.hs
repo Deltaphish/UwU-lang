@@ -49,13 +49,13 @@ parseFile file = parse tokenize
         parse (("OwO":exp1):rest) =
             (While (parseStmt Nop exp1) $ parse body) : (parse after)
             where
-                (body, _, after) = foldr loopBreaker ([[]], 1, [[]]) rest
+                (body, _, after) = foldl loopBreaker ([[]], 1, [[]]) rest
 
-                loopBreaker :: [String] -> ([[String]], Integer, [[String]]) -> ([[String]], Integer, [[String]])
-                loopBreaker n (b, 0, a)           = (n:b, 0, a)
-                loopBreaker ("OwO":r) (b, c, a)   = (b, c + 1, ("OwO":r):a)
-                loopBreaker ("stawp":r) (b, c, a) = (b, c - 1, a)
-                loopBreaker n (b, c, a)           = (b, c, n:a)
+                loopBreaker :: ([[String]], Integer, [[String]]) -> [String] -> ([[String]], Integer, [[String]])
+                loopBreaker (b, 0, a) n           = (b, 0, a ++ [n])
+                loopBreaker (b, c, a) ("OwO":r)   = (b ++ [("OwO":r)], c + 1, a)
+                loopBreaker (b, c, a) ("stawp":r) = (b ++ if c - 1 /= 0 then [("stawp":r)] else [], c - 1, a)
+                loopBreaker (b, c, a) n           = (b ++ [n], c, a)
         
         parse (s:ss) = (parseStmt Nop s) : (parse ss)
         parse [] = []
