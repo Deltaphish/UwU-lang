@@ -13,19 +13,28 @@ The language is not stable, both in semantics and operation so it is not
 advised to use UwU-lang in production.
 
 ## Code example:
-finds the first Fibonacci number above 100
+### Hello World
 ~~~~
+UwU?
+nuzzels "Hello World"
+~~~~
+
+### finds the first Fibonacci number above 100
+~~~~
+UwU is this fibonacci?
+
 a iws 1
 b iws 1
 c iws 0
 
-OwO *notices 100 gweatew twan a *
+OwO *notices 100 gweatew than a *
     c iws b 
     b iws b pwus a
     a iws c
+    n iws n pwus 1
 stawp
 
-nuzzels a`
+nuzzels a
 ~~~~
 
 Documentation can be found in the wiki
