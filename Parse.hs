@@ -39,30 +39,36 @@ parseFile file = parse tokenize
         parse :: [[String]] -> [Expr]
         
         parse (("OwO":exp1):rest) =
-            (While (parseStmt exp1) body) : (parse after)
+            (While (parseStmt Nop exp1) body) : (parse after)
             where
-                body = map parseStmt $ takeWhile (\t -> t /= ["stowp"]) rest
+                body = map (parseStmt Nop) $ takeWhile (\t -> t /= ["stowp"]) rest
                 after = drop (length body+1) rest
         
-        parse (s:ss) = (parseStmt s) : (parse ss)
+        parse (s:ss) = (parseStmt Nop s) : (parse ss)
         parse [] = []
 
-        parseStmt :: [String] -> Expr
+        lexer :: String -> (String,Maybe Integer)
+        lexer "*"       = ("",Nothing)
+        lexer "iws"     = ("Is",Nothing)
+        lexer "pwus"    = ("Plus",Nothing)
+        lexer "nuzzels" = ("Print",Nothing)
+        lexer "gweatew" = ("Great",Nothing)
+        lexer tkn       = 
+            case (readMaybe tkn :: Maybe Integer) of
+                 Just n  -> ("Literal",Just n)
+                 Nothing -> ("Variable",Nothing)
 
-        parseStmt [] = Nop
+        parseStmt :: Expr -> [String] -> Expr
+        parseStmt before []         = before
 
-        parseStmt ("nuzzels":expr) = 
-            Print (parseStmt expr)
+        parseStmt before (tkn:tkns) = case (lexer tkn) of
+            ("Variable",Nothing) ->  parseStmt (Variable tkn) tkns
+            ("Literal",Just n)   ->  parseStmt (Literal n) tkns
+            ("Is", Nothing)      ->  Is before (parseStmt Nop tkns)
+            ("Plus", Nothing)    ->  Plus before (parseStmt Nop tkns)
+            ("Great", Nothing)   ->  Great before (parseStmt Nop (drop 1 tkns))
+            ("Print", Nothing)   ->  Print (parseStmt Nop tkns)
+            _                    ->  before
 
-        parseStmt ("*notices":tkn1:"is":"gweatew":"than":tkn2:"*":[]) =
-            Great (parseToken tkn1) (parseToken tkn2)
-
-        parseStmt (tkn:"pwus":exp2) =
-            Plus (parseToken tkn) (parseStmt exp2)
-
-        parseStmt (var:"iws":exp) =
-            Is (Variable var) (parseStmt exp)
-
-        parseStmt (tkn:[]) = parseToken tkn 
 
 
