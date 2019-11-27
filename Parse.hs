@@ -2,9 +2,15 @@ module Parse where
 
 import Text.Read
 
+data Data = I32 Integer | Str String 
+
+instance Show Data where
+    show (I32 n) = show n
+    show (Str s) = s
+
 data Expr = 
     Variable String   |
-    Literal Integer   |
+    Literal Data      |
     Is Expr Expr      |
     While Expr [Expr] |
     EndWhile          |
@@ -32,7 +38,7 @@ parseFile file = parse tokenize
         parseToken :: String -> Expr
         parseToken s = parseTken (readMaybe s :: Maybe Integer)
            where
-            parseTken (Just n) = Literal n
+            parseTken (Just n) = Literal (I32 n)
             parseTken Nothing
                 | isReserved s = error "Use of reserved word"
                 | otherwise    = Variable s
@@ -50,6 +56,7 @@ parseFile file = parse tokenize
         parse [] = []
 
         lexer :: String -> (String,Maybe Integer)
+        lexer ('\"':xs) = ("Quote",Nothing)
         lexer "*"       = ("",Nothing)
         lexer "iws"     = ("Is",Nothing)
         lexer "pwus"    = ("Plus",Nothing)
@@ -60,12 +67,20 @@ parseFile file = parse tokenize
                  Just n  -> ("Literal",Just n)
                  Nothing -> ("Variable",Nothing)
 
-        parseStmt :: Expr -> [String] -> Expr
-        parseStmt before []         = before
 
+
+        takeRestOfStr :: [String] -> String
+        takeRestOfStr (s:ss)
+           | last s == '\"' = init s
+           | otherwise      = s ++ " " ++ takeRestOfStr ss
+
+        parseStmt :: Expr -> [String] -> Expr
+        parseStmt before []              = before
+        parseStmt _ (('U':'w':'U':s):ss) = Nop
         parseStmt before (tkn:tkns) = case (lexer tkn) of
+            ("Quote", Nothing)   ->  Literal (Str $ (tail tkn) ++ " " ++ takeRestOfStr tkns)  
             ("Variable",Nothing) ->  parseStmt (Variable tkn) tkns
-            ("Literal",Just n)   ->  parseStmt (Literal n) tkns
+            ("Literal",Just n)   ->  parseStmt (Literal (I32 n)) tkns
             ("Is", Nothing)      ->  Is before (parseStmt Nop tkns)
             ("Plus", Nothing)    ->  Plus before (parseStmt Nop tkns)
             ("Great", Nothing)   ->  Great before (parseStmt Nop (drop 1 tkns))
