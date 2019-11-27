@@ -47,10 +47,15 @@ parseFile file = parse tokenize
         parse :: [[String]] -> [Expr]
         
         parse (("OwO":exp1):rest) =
-            (While (parseStmt Nop exp1) body) : (parse after)
+            (While (parseStmt Nop exp1) $ parse body) : (parse after)
             where
-                body = map (parseStmt Nop) $ takeWhile (\t -> t /= ["stawp"]) rest
-                after = drop (length body+1) rest
+                (body, _, after) = foldr loopBreaker ([[]], 1, [[]]) rest
+
+                loopBreaker :: [String] -> ([[String]], Integer, [[String]]) -> ([[String]], Integer, [[String]])
+                loopBreaker n (b, 0, a)           = (n:b, 0, a)
+                loopBreaker ("OwO":r) (b, c, a)   = (b, c + 1, ("OwO":r):a)
+                loopBreaker ("stawp":r) (b, c, a) = (b, c - 1, a)
+                loopBreaker n (b, c, a)           = (b, c, n:a)
         
         parse (s:ss) = (parseStmt Nop s) : (parse ss)
         parse [] = []
