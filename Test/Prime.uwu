@@ -1,0 +1,44 @@
+UwU isPrime
+
+min iws 2
+max iws 100
+
+i iws min
+OwO *notices max gweatew than i *
+	UwU Find i/2
+	halfICounter iws 1
+	halfI iws 0
+	OwO *notices i gweatew than halfICounter *
+		halfICounter iws halfICounter pwus 2
+		halfI iws halfI pwus 1
+	stawp
+	halfI iws halfI pwus 1
+
+	evenDivisions iws 0
+	divI iws 2
+	OwO *notices halfI gweatew than divI *
+		UwU Count up to (and maybe over) i
+		otherI iws 0
+		OwO *notices i gweatew than otherI *
+			otherI iws otherI pwus divI
+		stawp
+
+		UwU If we counted to exactly i divI can evenly divide i
+		iPlus iws i pwus 1
+		OwO *notices iPlus gweatew than otherI *
+			evenDivisions iws evenDivisions pwus 1
+			otherI iws iPlus
+		stawp
+
+		divI iws divI pwus 1
+	stawp
+
+	UwU If no number is able to evenly divide i, then that means i is a prime number
+	OwO *notices 1 gweatew than evenDivisions *
+		nuzzels i
+		nuzzels ", "
+		y iws 1
+	stawp
+
+	i iws i pwus 1
+stawp

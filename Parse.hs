@@ -1,6 +1,6 @@
 module Parse where
 
-import Text.Read
+import qualified Lexer as Lex
 
 data Data = I32 Integer | Str String 
 
@@ -20,32 +20,16 @@ data Expr =
     Nop
     deriving Show
 
-isReserved :: String -> Bool
-isReserved s
-    | s == "iws"      = True
-    | s == "pwus"     = True
-    | s == "stawp"    = True
-    | s == "*"        = True
-    | s == "*notices" = True
-    | s == "nuzzels"  = True
-    | otherwise       = False
+
 
 parseFile :: String -> [Expr]
 parseFile file = parse tokenize
     where
         tokenize = map words $ lines file
 
-        parseToken :: String -> Expr
-        parseToken s = parseTken (readMaybe s :: Maybe Integer)
-           where
-            parseTken (Just n) = Literal (I32 n)
-            parseTken Nothing
-                | isReserved s = error "Use of reserved word"
-                | otherwise    = Variable s
-
-
         parse :: [[String]] -> [Expr]
 
+        -- Parse while loops--
         parse (("OwO":exp1):rest) =
             (While (parseStmt Nop exp1) body) : (parse after)
             where
@@ -58,22 +42,6 @@ parseFile file = parse tokenize
         parse (s:ss) = (parseStmt Nop s) : (parse ss)
         parse [] = []
 
-        lexer :: String -> (String,Maybe Integer)
-        lexer ('\"':xs) 
-           | last xs == '\"' = ("String",Nothing)
-           | otherwise       = ("Quote",Nothing) 
-        lexer "*"            = ("",Nothing)
-        lexer "iws"          = ("Is",Nothing)
-        lexer "pwus"         = ("Plus",Nothing)
-        lexer "nuzzels"      = ("Print",Nothing)
-        lexer "gweatew"      = ("Great",Nothing)
-        lexer tkn = 
-            case (readMaybe tkn :: Maybe Integer) of
-                 Just n  -> ("Literal",Just n)
-                 Nothing -> ("Variable",Nothing)
-
-
-
         takeRestOfStr :: [String] -> String
         takeRestOfStr (s:ss)
            | last s == '\"' = init s
@@ -81,17 +49,17 @@ parseFile file = parse tokenize
 
         parseStmt :: Expr -> [String] -> Expr
         parseStmt before []              = before
-        parseStmt _ (('U':'w':'U':s):ss) = Nop
-        parseStmt before (tkn:tkns) = case lexer tkn of
-            ("String", Nothing)  ->  Literal (Str (tail $ init tkn))
-            ("Quote", Nothing)   ->  Literal (Str $ (tail tkn) ++ " " ++ takeRestOfStr tkns)  
-            ("Variable",Nothing) ->  parseStmt (Variable tkn) tkns
-            ("Literal",Just n)   ->  parseStmt (Literal (I32 n)) tkns
-            ("Is", Nothing)      ->  Is before (parseStmt Nop tkns)
-            ("Plus", Nothing)    ->  Plus before (parseStmt Nop tkns)
-            ("Great", Nothing)   ->  Great before (parseStmt Nop (drop 1 tkns))
-            ("Print", Nothing)   ->  Print (parseStmt Nop tkns)
-            _                    ->  before
+        parseStmt before (tkn:tkns) = case Lex.lexer tkn of
+            Lex.Comment           ->  Nop
+            (Lex.Str s)        ->  Literal (Str s)
+            (Lex.Quote strChnk)   ->  Literal (Str s) where s = strChnk ++ takeRestOfStr tkns
+            (Lex.Variable name)   ->  parseStmt (Variable name) tkns
+            (Lex.I32 i)           ->  parseStmt (Literal (I32 i)) tkns
+            Lex.Is                ->  Is before (parseStmt Nop tkns)
+            Lex.Plus              ->  Plus before (parseStmt Nop tkns)
+            Lex.Great             ->  Great before (parseStmt Nop (drop 1 tkns))
+            Lex.Print             ->  Print (parseStmt Nop tkns)
+            _                     ->  before
 
 
 
