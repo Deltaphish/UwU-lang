@@ -16,7 +16,7 @@ advised to use UwU-lang in production.
 ### Hello World
 ~~~~
 UwU?
-nuzzels "Hello World"
+nuzzels "Hewwo World"
 ~~~~
 
 ### finds the first Fibonacci number above 100
