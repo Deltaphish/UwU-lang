@@ -31,7 +31,6 @@ OwO *notices 100 gweatew than a *
     c iws b 
     b iws b pwus a
     a iws c
-    n iws n pwus 1
 stawp
 
 nuzzels a
