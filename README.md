@@ -1,4 +1,13 @@
 # UwU-lang
+## [Deprecated]
+## Development has moved to [UwUpp](https://github.com/Deltaphish/UwUpp)
+This project was cobbled together haphazardly in around a week as an experiment for me to learn haskell and
+combinatory parsing. While the result was beautiful, the code base lacked stability/perfromance/maintenance/readability etc. To reach the full potential uwu based programing can reach, i decided to rewrite everything. The result is the next
+generation of UwU-lang, [UwUpp](https://github.com/Deltaphish/UwUpp)!
+
+I'll keep this repo here for historical value
+
+## About
 UwU-lang is a imperative programming language which aims to compete with brainf*ck
 to be the most painfull programming language to read and write in.
 
